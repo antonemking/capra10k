@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Capra10k - Goat Barn Labeler</title>
+  <script src="https://unpkg.com/konva@9.0.0/konva.min.js"></script>
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+      text-align: center; 
+      background: #f8f9fa;
+      margin: 0;
+      padding: 15px;
+      color: #2d3748;
+    }
+    
+    .container-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    #container { 
+      margin: 15px auto; 
+      width: 800px; 
+      height: 600px; 
+      border: 2px solid #e2e8f0;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-radius: 4px;
+    }
+    
+    .btn { 
+      margin: 2px; 
+      padding: 8px 12px; 
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 13px;
+      color: white;
+      transition: opacity 0.2s ease;
+      font-family: inherit;
+    }
+    
+    .btn:hover {
+      opacity: 0.9;
+    }
+    
+    .btn.nav-btn {
+      background: #4299e1;
+      min-width: 90px;
+    }
+    
+    .btn.goat-btn {
+      background: #e53e3e;
+    }
+    
+    .btn.trough-btn {
+      background: #38a169;
+    }
+    
+    .btn.platform-btn {
+      background: #d69e2e;
+    }
+    
+    .btn.enrichment-btn {
+      background: #805ad5;
+    }
+    
+    .btn.utility-btn {
+      background: #718096;
+    }
+    
+    .btn.save-btn {
+      background: #38a169;
+      font-weight: 600;
+    }
+    
+    .btn.skip-btn {
+      background: #ed8936;
+    }
+    
+    .toolbar {
+      margin: 15px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      background: #f7fafc;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .image-navigation, .label-buttons, .utility-buttons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    
+    .label-buttons {
+      border-left: 1px solid #e2e8f0;
+      border-right: 1px solid #e2e8f0;
+      padding: 0 15px;
+    }
+    
+    h1 {
+      color: #2d3748;
+      margin: 0 0 10px 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+    
+    .instructions {
+      background: #f7fafc;
+      color: #4a5568;
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      line-height: 1.4;
+      font-size: 13px;
+    }
+    
+    .instructions strong {
+      color: #2d3748;
+      font-weight: 600;
+    }
+    
+    #image-status {
+      margin: 0 15px;
+      font-weight: 500;
+      color: #2d3748;
+      background: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      font-size: 13px;
+      min-width: 180px;
+    }
+    
+    @media (max-width: 768px) {
+      .toolbar {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .label-buttons {
+        border: none;
+        padding: 0;
+      }
+      
+      .container-wrapper {
+        padding: 15px;
+        margin: 10px;
+      }
+      
+      #container {
+        width: 100%;
+        max-width: 800px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container-wrapper">
+    <h1>Capra10k Labeler 🐐</h1>
+    <div class="instructions">
+      Click to place points. Close a shape by clicking near the start point.<br>
+      Scroll to zoom, drag points to adjust them. Right-click points to delete them.<br>
+      <strong>Navigation:</strong> ← → arrow keys or buttons to move between images<br>
+      <strong>Shortcuts:</strong> Ctrl+S (save & next), Space (skip), Esc (reset), 1-4 (select category)
+    </div>
+
+    <div class="toolbar">
+      <div class="image-navigation">
+        <button class="btn nav-btn" onclick="previousImage()">◀ Previous</button>
+        <span id="image-status">Loading...</span>
+        <button class="btn nav-btn" onclick="nextImage()">Next ▶</button>
+      </div>
+      <div class="label-buttons">
+        <button class="btn goat-btn" onclick="setCategory('goat')">Goat</button>
+        <button class="btn trough-btn" onclick="setCategory('trough')">Trough</button>
+        <button class="btn platform-btn" onclick="setCategory('platform')">Platform</button>
+        <button class="btn enrichment-btn" onclick="setCategory('enrichment')">Enrichment</button>
+      </div>
+      <div class="utility-buttons">
+        <button class="btn utility-btn" onclick="undoLastPoint()">Undo</button>
+        <button class="btn utility-btn" onclick="redoLastPoint()">Redo</button>
+        <button class="btn utility-btn" onclick="resetCanvas()">Reset</button>
+        <button class="btn save-btn" onclick="saveAndNext()">Save & Next</button>
+        <button class="btn skip-btn" onclick="skipImage()">Skip</button>
+      </div>
+    </div>
+
+    <div id="container"></div>
+    
+    <footer style="margin-top: 20px; padding: 15px 0; border-top: 1px solid #e2e8f0; color: #718096; font-size: 12px;">
+      © 2025 Capra AI. All rights reserved.
+    </footer>
+  </div>
+
+  <script>
+    const width = 800;
+    const height = 600;
+    const categories = {
+      goat: { color: '#FF0000', name: 'Goat' },
+      trough: { color: '#00FF66', name: 'Trough' },
+      platform: { color: '#8B4513', name: 'Platform/Perch' },
+      enrichment: { color: '#9370DB', name: 'Enrichment Item' }
+    };
+
+    let currentCategory = 'goat';
+    let currentPoints = [];
+    let shapes = [];
+    let scaleBy = 1.1;
+    let undoStack = []; // Store removed points for redo
+    
+    // Image cycling variables
+    let imageList = [];
+    let currentImageIndex = 0;
+    let currentImageObj = null;
+
+    const stage = new Konva.Stage({
+      container: 'container',
+      width,
+      height,
+      draggable: false, // Start with dragging disabled
+    });
+
+    const imageLayer = new Konva.Layer();
+    const drawLayer = new Konva.Layer();
+    stage.add(imageLayer);
+    stage.add(drawLayer);
+
+    // Zoom functionality
+    stage.on('wheel', (e) => {
+      e.evt.preventDefault();
+      
+      const oldScale = stage.scaleX();
+      const pointer = stage.getPointerPosition();
+      const mousePointTo = {
+        x: (pointer.x - stage.x()) / oldScale,
+        y: (pointer.y - stage.y()) / oldScale,
+      };
+
+      const newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+      // Enable dragging only when zoomed in
+      stage.draggable(newScale > 1);
+
+      stage.scale({ x: newScale, y: newScale });
+
+      const newPos = {
+        x: pointer.x - mousePointTo.x * newScale,
+        y: pointer.y - mousePointTo.y * newScale,
+      };
+      stage.position(newPos);
+      stage.batchDraw();
+    });
+
+    // Load images functionality
+    async function loadImageList() {
+      try {
+        const response = await fetch('/api/images');
+        imageList = await response.json();
+        if (imageList.length > 0) {
+          loadCurrentImage();
+        } else {
+          updateImageStatus('No images found');
+        }
+      } catch (error) {
+        console.error('Error loading image list:', error);
+        updateImageStatus('Error loading images');
+      }
+    }
+
+    function updateImageStatus() {
+      const statusElement = document.getElementById('image-status');
+      if (imageList.length === 0) {
+        statusElement.textContent = 'No images to label';
+        return;
+      }
+      // Extract just the filename from the path for cleaner display
+      const filename = imageList[currentImageIndex].split('/').pop();
+      statusElement.textContent = `Image ${currentImageIndex + 1} of ${imageList.length}: ${filename}`;
+    }
+
+    function loadCurrentImage() {
+      if (currentImageIndex >= imageList.length) {
+        updateImageStatus();
+        return;
+      }
+
+      // Handle both flat and nested directory structures
+      const imagePath = `goat_images/${imageList[currentImageIndex]}`;
+      
+      // Create new image object
+      currentImageObj = new Image();
+      currentImageObj.crossOrigin = "Anonymous";
+      
+      currentImageObj.onload = function () {
+        // Clear the image layer
+        imageLayer.destroyChildren();
+        
+        const konvaImage = new Konva.Image({
+          image: currentImageObj,
+          width,
+          height,
+        });
+        imageLayer.add(konvaImage);
+        imageLayer.draw();
+        updateImageStatus();
+      };
+      
+      currentImageObj.onerror = function() {
+        console.error('Error loading image:', imagePath);
+        // Create a fallback white background
+        imageLayer.destroyChildren();
+        const konvaRect = new Konva.Rect({
+          width,
+          height,
+          fill: 'white',
+        });
+        imageLayer.add(konvaRect);
+        imageLayer.draw();
+        updateImageStatus();
+      };
+      
+      currentImageObj.src = imagePath;
+    }
+
+    // Initialize the application
+    loadImageList();
+
+    // Load the image
+    const imageObj = new Image();
+    imageObj.crossOrigin = "Anonymous";
+    imageObj.onload = function () {
+      const konvaImage = new Konva.Image({
+        image: imageObj,
+        width,
+        height,
+      });
+      imageLayer.add(konvaImage);
+      imageLayer.draw();
+    };
+    imageObj.onerror = function() {
+      console.error('Error loading image. Make sure the image is served with proper CORS headers.');
+      // Create a fallback white background
+      const konvaRect = new Konva.Rect({
+        width,
+        height,
+        fill: 'white',
+      });
+      imageLayer.add(konvaRect);
+      imageLayer.draw();
+    };
+    imageObj.src = 'goat1.jpg';
+
+    // Current polygon line
+    const polyline = new Konva.Line({
+      points: [],
+      stroke: categories[currentCategory].color,
+      strokeWidth: 2,
+      dash: [5, 5],
+    });
+    drawLayer.add(polyline);
+
+    function setCategory(category) {
+      currentCategory = category;
+      polyline.stroke(categories[category].color);
+      drawLayer.draw();
+    }
+
+    function updatePolygon(shape) {
+      // Find and update the polygon visual
+      const polygons = drawLayer.find('Line').filter(line => 
+        line !== polyline && line.points().length === shape.points.length
+      );
+      if (polygons.length > 0) {
+        const polygon = polygons[0];
+        polygon.points(shape.points);
+        polygon.fill(categories[shape.category].color);
+        polygon.stroke(categories[shape.category].color);
+        polygon.closed(true);
+        polygon.opacity(0.5);
+        drawLayer.batchDraw();
+      }
+    }
+
+    function undoLastPoint() {
+      if (currentPoints.length > 0) {
+        // Store the point for redo
+        const lastX = currentPoints[currentPoints.length - 2];
+        const lastY = currentPoints[currentPoints.length - 1];
+        undoStack.push({ x: lastX, y: lastY, color: categories[currentCategory].color });
+        
+        // Remove the last point from the array
+        currentPoints.splice(-2, 2);
+        
+        // Remove the last point visual
+        const points = drawLayer.find('Circle');
+        const lastPoint = points[points.length - 1];
+        if (lastPoint && !lastPoint.shape) {
+          lastPoint.destroy();
+        }
+        
+        // Update the polyline
+        polyline.points(currentPoints);
+        drawLayer.draw();
+      }
+    }
+
+    function redoLastPoint() {
+      if (undoStack.length > 0) {
+        const lastPoint = undoStack.pop();
+        
+        // Add the point back
+        currentPoints.push(lastPoint.x, lastPoint.y);
+        
+        // Create the point visual
+        const point = createDraggablePoint(
+          lastPoint.x,
+          lastPoint.y,
+          lastPoint.color,
+          (currentPoints.length / 2) - 1
+        );
+        drawLayer.add(point);
+        
+        // Update the polyline
+        polyline.points(currentPoints);
+        drawLayer.draw();
+      }
+    }
+
+    function removePoint(point, index, shape) {
+      if (shape) {
+        // Remove point from completed shape
+        const newPoints = [...shape.points];
+        newPoints.splice(index * 2, 2);
+        
+        if (newPoints.length >= 6) { // Keep shape if at least 3 points remain
+          shape.points = newPoints;
+          updatePolygon(shape);
+          point.destroy();
+          
+          // Reindex remaining points
+          const shapePoints = drawLayer.find('Circle').filter(p => p.shape === shape);
+          shapePoints.forEach((p, i) => {
+            p.index = i;
+          });
+        }
+      } else {
+        // Remove point from current polygon
+        currentPoints.splice(index * 2, 2);
+        point.destroy();
+        
+        // Update the polyline
+        polyline.points(currentPoints);
+        
+        // Reindex remaining points
+        const currentPolyPoints = drawLayer.find('Circle').filter(p => !p.shape);
+        currentPolyPoints.forEach((p, i) => {
+          p.index = i;
+        });
+      }
+      drawLayer.draw();
+    }
+
+    function createDraggablePoint(x, y, color, index, shape) {
+      const point = new Konva.Circle({
+        x: x,
+        y: y,
+        radius: 3,
+        fill: color,
+        stroke: 'white',
+        strokeWidth: 1,
+        draggable: true,
+      });
+
+      point.index = index; // Store the index on the point
+      
+      // Add hover cursor and visual feedback
+      point.on('mouseover', () => {
+        document.body.style.cursor = 'move';
+        point.strokeWidth(2);
+        point.radius(4);
+        drawLayer.draw();
+      });
+
+      point.on('mouseout', () => {
+        document.body.style.cursor = 'default';
+        point.strokeWidth(1);
+        point.radius(3);
+        drawLayer.draw();
+      });
+
+      point.on('dragstart', () => {
+        point.dragging = true;
+      });
+
+      point.on('dragend', () => {
+        point.dragging = false;
+        drawLayer.draw();
+      });
+
+      point.on('dragmove', () => {
+        if (shape) {
+          shape.points[index * 2] = point.x();
+          shape.points[index * 2 + 1] = point.y();
+          updatePolygon(shape);
+        } else {
+          currentPoints[index * 2] = point.x();
+          currentPoints[index * 2 + 1] = point.y();
+          polyline.points(currentPoints);
+        }
+        drawLayer.batchDraw();
+      });
+
+      // Add right-click to delete point
+      point.on('contextmenu', (e) => {
+        e.evt.preventDefault();
+        removePoint(point, point.index, shape);
+      });
+
+      return point;
+    }
+
+    stage.on('mousemove', (e) => {
+      // Change cursor when near the first point
+      if (currentPoints.length >= 4) { // At least 2 points
+        const pos = stage.getRelativePointerPosition();
+        const [startX, startY] = currentPoints;
+        const distance = Math.sqrt(
+          Math.pow(pos.x - startX, 2) + Math.pow(pos.y - startY, 2)
+        );
+        
+        // Only show pointer cursor if we're not currently dragging a point
+        const points = drawLayer.find('Circle');
+        const isDragging = points.some(p => p.dragging);
+        
+        if (distance < 20 && !isDragging) {
+          document.body.style.cursor = 'pointer';
+        } else if (e.target === stage || e.target.getLayer() === imageLayer) {
+          document.body.style.cursor = 'default';
+        }
+      }
+    });
+
+    stage.on('click', (e) => {
+      const pos = stage.getRelativePointerPosition();
+      
+      // Don't handle clicks if we're dragging a point
+      const points = drawLayer.find('Circle');
+      if (points.some(p => p.dragging)) {
+        return;
+      }
+
+      // Check if clicking near the first point to close the polygon
+      if (currentPoints.length >= 4) { // At least 2 points
+        const [startX, startY] = currentPoints;
+        const distance = Math.sqrt(
+          Math.pow(pos.x - startX, 2) + Math.pow(pos.y - startY, 2)
+        );
+
+        if (distance < 20) {
+          // Create filled polygon
+          const polygon = new Konva.Line({
+            points: currentPoints,
+            fill: categories[currentCategory].color,
+            stroke: categories[currentCategory].color,
+            strokeWidth: 2,
+            closed: true,
+            opacity: 0.5,
+          });
+          
+          const shape = {
+            points: [...currentPoints],
+            category: currentCategory,
+          };
+          shapes.push(shape);
+          
+          drawLayer.add(polygon);
+          polygon.moveToBottom(); // Move polygon behind points
+          
+          // Remove the temporary points
+          points.forEach(point => {
+            if (!point.shape) {
+              point.destroy();
+            }
+          });
+          
+          // Add draggable points for the completed polygon
+          for (let i = 0; i < currentPoints.length; i += 2) {
+            const point = createDraggablePoint(
+              currentPoints[i],
+              currentPoints[i + 1],
+              categories[currentCategory].color,
+              i / 2,
+              shape
+            );
+            point.shape = shape; // Mark this point as belonging to a shape
+            drawLayer.add(point);
+          }
+          
+          // Reset current polygon
+          currentPoints = [];
+          polyline.points([]);
+          drawLayer.draw();
+          undoStack = []; // Clear undo stack when completing shape
+          return;
+        }
+      }
+
+      // Only handle clicks on the stage or image layer for new points
+      if (e.target !== stage && e.target.getLayer() !== imageLayer) return;
+      
+      undoStack = []; // Clear undo stack when adding new points
+      currentPoints.push(pos.x, pos.y);
+      
+      // Draw draggable point at click
+      const point = createDraggablePoint(pos.x, pos.y, categories[currentCategory].color, (currentPoints.length / 2) - 1);
+      drawLayer.add(point);
+
+      // Update polyline
+      polyline.points(currentPoints);
+      drawLayer.draw();
+    });
+
+    function resetCanvas() {
+      currentPoints = [];
+      shapes = [];
+      undoStack = [];
+      drawLayer.destroyChildren();
+      drawLayer.add(polyline);
+      drawLayer.draw();
+    }
+
+    function previousImage() {
+      if (currentImageIndex > 0) {
+        currentImageIndex--;
+        resetCanvas();
+        loadCurrentImage();
+      }
+    }
+
+    function nextImage() {
+      if (currentImageIndex < imageList.length - 1) {
+        currentImageIndex++;
+        resetCanvas();
+        loadCurrentImage();
+      }
+    }
+
+    function skipImage() {
+      nextImage();
+    }
+
+    async function saveAndNext() {
+      if (shapes.length === 0) {
+        alert('No annotations to save. Add some labels first or use Skip to move to the next image.');
+        return;
+      }
+
+      try {
+        // Save the annotations
+        await saveAnnotations();
+        
+        // Move the image to review queue
+        const response = await fetch('/api/move-to-reviewed', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            filename: imageList[currentImageIndex]
+          }),
+        });
+
+        if (response.ok) {
+          // Remove this image from the list
+          imageList.splice(currentImageIndex, 1);
+          
+          // Adjust current index if needed
+          if (currentImageIndex >= imageList.length && imageList.length > 0) {
+            currentImageIndex = imageList.length - 1;
+          }
+          
+          // Load next image or show completion message
+          if (imageList.length > 0) {
+            resetCanvas();
+            loadCurrentImage();
+          } else {
+            updateImageStatus();
+            document.getElementById('image-status').textContent = 'All images completed! 🎉';
+          }
+        } else {
+          throw new Error('Failed to move image to review queue');
+        }
+      } catch (error) {
+        console.error('Error saving and moving image:', error);
+        alert('Error saving image. Please try again.');
+      }
+    }
+
+    async function saveAnnotations() {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+
+      // First draw the background image
+      if (currentImageObj) {
+        ctx.drawImage(currentImageObj, 0, 0, width, height);
+      }
+
+      // Draw all shapes with semi-transparency
+      shapes.forEach(shape => {
+        ctx.beginPath();
+        ctx.moveTo(shape.points[0], shape.points[1]);
+        for (let i = 2; i < shape.points.length; i += 2) {
+          ctx.lineTo(shape.points[i], shape.points[i + 1]);
+        }
+        ctx.closePath();
+        
+        // Set fill style with alpha for transparency
+        const color = categories[shape.category].color;
+        const r = parseInt(color.slice(1,3), 16);
+        const g = parseInt(color.slice(3,5), 16);
+        const b = parseInt(color.slice(5,7), 16);
+        ctx.fillStyle = `rgba(${r},${g},${b},0.5)`;
+        ctx.fill();
+      });
+
+      // Create a second canvas for the mask-only version
+      const maskCanvas = document.createElement('canvas');
+      maskCanvas.width = width;
+      maskCanvas.height = height;
+      const maskCtx = maskCanvas.getContext('2d');
+
+      // Clear mask canvas with transparent background
+      maskCtx.clearRect(0, 0, width, height);
+
+      // Draw shapes on mask canvas with full opacity
+      shapes.forEach(shape => {
+        maskCtx.beginPath();
+        maskCtx.moveTo(shape.points[0], shape.points[1]);
+        for (let i = 2; i < shape.points.length; i += 2) {
+          maskCtx.lineTo(shape.points[i], shape.points[i + 1]);
+        }
+        maskCtx.closePath();
+        maskCtx.fillStyle = categories[shape.category].color;
+        maskCtx.fill();
+      });
+
+      // Generate filenames based on current image
+      const currentFilename = imageList[currentImageIndex];
+      const baseName = currentFilename.replace(/\.[^/.]+$/, ""); // Remove extension
+      
+      // Save overlay image to server instead of downloading
+      const overlayData = canvas.toDataURL();
+      try {
+        await fetch('/api/save-overlay', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            filename: currentFilename,
+            overlayData: overlayData
+          }),
+        });
+      } catch (error) {
+        console.error('Error saving overlay:', error);
+        throw error;
+      }
+
+      // Still download the mask for user reference
+      const maskLink = document.createElement('a');
+      maskLink.download = `${baseName}_mask.png`;
+      maskLink.href = maskCanvas.toDataURL();
+      maskLink.click();
+    }
+
+    function downloadMask() {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+
+      // First draw the background image
+      ctx.drawImage(imageObj, 0, 0, width, height);
+
+      // Draw all shapes with semi-transparency
+      shapes.forEach(shape => {
+        ctx.beginPath();
+        ctx.moveTo(shape.points[0], shape.points[1]);
+        for (let i = 2; i < shape.points.length; i += 2) {
+          ctx.lineTo(shape.points[i], shape.points[i + 1]);
+        }
+        ctx.closePath();
+        
+        // Set fill style with alpha for transparency
+        const color = categories[shape.category].color;
+        const r = parseInt(color.slice(1,3), 16);
+        const g = parseInt(color.slice(3,5), 16);
+        const b = parseInt(color.slice(5,7), 16);
+        ctx.fillStyle = `rgba(${r},${g},${b},0.5)`;
+        ctx.fill();
+      });
+
+      // Create a second canvas for the mask-only version
+      const maskCanvas = document.createElement('canvas');
+      maskCanvas.width = width;
+      maskCanvas.height = height;
+      const maskCtx = maskCanvas.getContext('2d');
+
+      // Clear mask canvas with transparent background
+      maskCtx.clearRect(0, 0, width, height);
+
+      // Draw shapes on mask canvas with full opacity
+      shapes.forEach(shape => {
+        maskCtx.beginPath();
+        maskCtx.moveTo(shape.points[0], shape.points[1]);
+        for (let i = 2; i < shape.points.length; i += 2) {
+          maskCtx.lineTo(shape.points[i], shape.points[i + 1]);
+        }
+        maskCtx.closePath();
+        maskCtx.fillStyle = categories[shape.category].color;
+        maskCtx.fill();
+      });
+
+      // Download both versions
+      const overlayLink = document.createElement('a');
+      overlayLink.download = 'overlay.png';
+      overlayLink.href = canvas.toDataURL();
+      overlayLink.click();
+
+      const maskLink = document.createElement('a');
+      maskLink.download = 'mask.png';
+      maskLink.href = maskCanvas.toDataURL();
+      maskLink.click();
+    }
+
+    // Prevent context menu on right-click
+    stage.on('contextmenu', (e) => {
+      e.evt.preventDefault();
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Only handle shortcuts if not in an input field
+      if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        switch(e.key) {
+          case 'ArrowLeft':
+            e.preventDefault();
+            previousImage();
+            break;
+          case 'ArrowRight':
+            e.preventDefault();
+            nextImage();
+            break;
+          case 's':
+          case 'S':
+            if (e.ctrlKey || e.metaKey) {
+              e.preventDefault();
+              saveAndNext();
+            }
+            break;
+          case ' ': // Space bar
+            e.preventDefault();
+            skipImage();
+            break;
+          case 'Escape':
+            e.preventDefault();
+            resetCanvas();
+            break;
+          case '1':
+            e.preventDefault();
+            setCategory('goat');
+            break;
+          case '2':
+            e.preventDefault();
+            setCategory('trough');
+            break;
+          case '3':
+            e.preventDefault();
+            setCategory('platform');
+            break;
+          case '4':
+            e.preventDefault();
+            setCategory('enrichment');
+            break;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
