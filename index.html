@@ -287,7 +287,7 @@
         return;
       }
       // Extract just the filename from the path for cleaner display
-      const filename = imageList[currentImageIndex].split('/').pop();
+      const filename = imageList[currentImageIndex].filename.split('/').pop();
       statusElement.textContent = `Image ${currentImageIndex + 1} of ${imageList.length}: ${filename}`;
     }
 
@@ -297,17 +297,18 @@
         return;
       }
 
-      // Handle both flat and nested directory structures
-      const imagePath = `goat_images/${imageList[currentImageIndex]}`;
-      
+      // Get the current image object from the list
+      const currentImage = imageList[currentImageIndex];
+      const imageUrl = currentImage.url || `goat_images/${currentImage.filename || currentImage}`;
+
       // Create new image object
       currentImageObj = new Image();
       currentImageObj.crossOrigin = "Anonymous";
-      
+
       currentImageObj.onload = function () {
         // Clear the image layer
         imageLayer.destroyChildren();
-        
+
         const konvaImage = new Konva.Image({
           image: currentImageObj,
           width,
@@ -317,9 +318,9 @@
         imageLayer.draw();
         updateImageStatus();
       };
-      
+
       currentImageObj.onerror = function() {
-        console.error('Error loading image:', imagePath);
+        console.error('Error loading image:', imageUrl);
         // Create a fallback white background
         imageLayer.destroyChildren();
         const konvaRect = new Konva.Rect({
@@ -331,8 +332,8 @@
         imageLayer.draw();
         updateImageStatus();
       };
-      
-      currentImageObj.src = imagePath;
+
+      currentImageObj.src = imageUrl;
     }
 
     // Initialize the application
@@ -679,7 +680,7 @@
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            filename: imageList[currentImageIndex]
+            filename: imageList[currentImageIndex].filename || imageList[currentImageIndex]
           }),
         });
 
@@ -760,7 +761,7 @@
       });
 
       // Generate filenames based on current image
-      const currentFilename = imageList[currentImageIndex];
+      const currentFilename = imageList[currentImageIndex].filename || imageList[currentImageIndex];
       const baseName = currentFilename.replace(/\.[^/.]+$/, ""); // Remove extension
       
       // Save overlay image to server instead of downloading
