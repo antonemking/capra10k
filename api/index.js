@@ -71,7 +71,7 @@ app.post('/api/save-overlay', async (req, res) => {
 // API endpoint to move image to reviewed folder
 app.post('/api/move-to-reviewed', async (req, res) => {
   try {
-    const { filename } = req.body;
+    const { filename, copyOnly } = req.body;
 
     // Extract just the filename without directory structure for cleaner organization
     const baseFilename = path.basename(filename);
@@ -86,15 +86,67 @@ app.post('/api/move-to-reviewed', async (req, res) => {
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
 
-    // Delete the original blob
-    await del(sourcePath, {
-      token: process.env.BLOB_READ_WRITE_TOKEN,
-    });
+    // Only delete the original if not in copy-only mode
+    if (!copyOnly) {
+      await del(sourcePath, {
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+      });
+    }
 
-    res.json({ success: true, message: `Moved ${baseFilename} to ${baseName}/ folder` });
+    const action = copyOnly ? 'Copied' : 'Moved';
+    res.json({ success: true, message: `${action} ${baseFilename} to ${baseName}/ folder` });
   } catch (error) {
     console.error('Error moving image:', error);
     res.status(500).json({ error: 'Failed to move image', details: error.message });
+  }
+});
+
+// API endpoint to get list of reviewed images with overlays
+app.get('/api/reviewed-images', async (req, res) => {
+  try {
+    // List all blobs with the 'goat_images_need_review/' prefix
+    const { blobs } = await list({
+      prefix: 'goat_images_need_review/',
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
+
+    // Group images by their base folder
+    const imageGroups = {};
+
+    blobs.forEach(blob => {
+      const pathParts = blob.pathname.split('/');
+      if (pathParts.length >= 3) {
+        const folderName = pathParts[1]; // e.g., "goat1"
+        const filename = pathParts[2];
+
+        if (!imageGroups[folderName]) {
+          imageGroups[folderName] = {};
+        }
+
+        if (filename.includes('_overlay.png')) {
+          imageGroups[folderName].overlay = blob.url;
+          imageGroups[folderName].overlayPath = blob.pathname;
+        } else {
+          imageGroups[folderName].original = blob.url;
+          imageGroups[folderName].originalPath = blob.pathname;
+          imageGroups[folderName].filename = filename;
+        }
+      }
+    });
+
+    // Convert to array and filter out incomplete entries
+    const reviewedImages = Object.entries(imageGroups)
+      .filter(([_, data]) => data.overlay) // Must have at least an overlay
+      .map(([folderName, data]) => ({
+        folderName,
+        ...data
+      }))
+      .sort((a, b) => a.folderName.localeCompare(b.folderName));
+
+    res.json(reviewedImages);
+  } catch (error) {
+    console.error('Error listing reviewed images:', error);
+    res.status(500).json({ error: 'Failed to read reviewed images from blob storage' });
   }
 });
 
