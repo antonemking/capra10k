@@ -43,6 +43,74 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed instructions on:
 - Contributing your work
 - Handling large files
 
+## 🌐 Deployment (Vercel)
+
+### Prerequisites
+1. A [Vercel account](https://vercel.com) (free tier works great!)
+2. Vercel Blob Storage connected to your project
+
+### Deployment Steps
+
+1. **Install Vercel CLI** (optional, for local testing):
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Connect to Vercel**:
+   - Go to [vercel.com](https://vercel.com) and sign in with GitHub
+   - Import your repository (`antonemking/capra10k`)
+   - Configure the project with these settings:
+     - **Framework Preset**: `Other`
+     - **Root Directory**: `./` (or leave blank)
+     - **Build Command**: Leave empty
+     - **Install Command**: `npm install`
+     - **Output Directory**: Leave empty
+
+3. **Set up Vercel Blob Storage**:
+   - In your Vercel project dashboard, go to **Storage**
+   - Add **Blob Storage**
+   - Copy the `BLOB_READ_WRITE_TOKEN` environment variable (this is automatically added to your project)
+
+4. **Upload Images to Blob Storage**:
+   - Images should be stored with the prefix `goat_images/`
+   - You can upload images via:
+     - Vercel Dashboard UI
+     - Vercel CLI: `vercel blob upload <file> --token <your-token>`
+     - Custom upload script using the `@vercel/blob` SDK
+
+5. **Deploy**:
+   ```bash
+   vercel deploy --prod
+   ```
+
+### Environment Variables
+The following environment variable is required and automatically configured when you add Blob Storage:
+- `BLOB_READ_WRITE_TOKEN` - Vercel Blob Storage access token
+
+### Image Upload Example
+```javascript
+// Upload script example (Node.js)
+const { put } = require('@vercel/blob');
+
+async function uploadImage(filePath) {
+  const fileBuffer = require('fs').readFileSync(filePath);
+  const blob = await put(`goat_images/${path.basename(filePath)}`, fileBuffer, {
+    access: 'public',
+    token: process.env.BLOB_READ_WRITE_TOKEN,
+  });
+  console.log('Uploaded:', blob.url);
+}
+```
+
+### Important Notes
+- **Blob Storage Structure**:
+  - `goat_images/` - Source images to label
+  - `goat_images_need_review/` - Completed annotations
+  - `goat_images_reviewed/` - Final approved labels
+- All images are stored in Vercel Blob Storage with public URLs
+- The frontend automatically loads images from blob URLs
+- Annotations are saved directly to blob storage
+
 ## 🏷️ Annotation Categories
 
 | Category | Description | Color |
@@ -122,12 +190,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for complete details.
 ### Built With
 - **Frontend**: Vanilla JavaScript + Konva.js for canvas manipulation
 - **Backend**: Node.js + Express for file handling
-- **Storage**: Local filesystem + S3 for distribution
+- **Storage**: Vercel Blob Storage for cloud deployment, Local filesystem for development
 
 ### API Endpoints
-- `GET /api/images` - List available images
-- `POST /api/save-overlay` - Save annotated image
-- `POST /api/move-to-reviewed` - Move to review queue
+- `GET /api/images` - List available images (returns array of `{filename, url}`)
+- `POST /api/save-overlay` - Save annotated overlay to blob storage
+- `POST /api/move-to-reviewed` - Move image to review queue in blob storage
 
 ## 📜 License
 
