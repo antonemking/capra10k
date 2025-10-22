@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Capra10k - Review Labeled Images</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 15px;
+      color: #2d3748;
+    }
+
+    .container-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      color: #2d3748;
+      margin: 0 0 10px 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #718096;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .header-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f7fafc;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 14px;
+      color: white;
+      transition: opacity 0.2s ease;
+      font-family: inherit;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .btn-primary {
+      background: #4299e1;
+    }
+
+    .btn-secondary {
+      background: #718096;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .view-toggle label {
+      font-size: 14px;
+      color: #4a5568;
+      margin-right: 8px;
+    }
+
+    .view-toggle select {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      background: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .image-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .image-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .image-container {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      background: #f7fafc;
+      overflow: hidden;
+    }
+
+    .image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .image-info {
+      padding: 12px;
+      background: #f7fafc;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .image-name {
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .image-meta {
+      font-size: 12px;
+      color: #718096;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: #718096;
+      font-size: 16px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #718096;
+    }
+
+    .empty-state h2 {
+      color: #4a5568;
+      margin-bottom: 10px;
+    }
+
+    .empty-state p {
+      margin-bottom: 20px;
+    }
+
+    .category-legend {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding: 12px;
+      background: #f7fafc;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .legend-goat { background: rgba(255, 0, 0, 0.6); }
+    .legend-trough { background: rgba(0, 255, 0, 0.6); }
+    .legend-platform { background: rgba(165, 42, 42, 0.6); }
+    .legend-enrichment { background: rgba(128, 0, 128, 0.6); }
+  </style>
+</head>
+<body>
+  <div class="container-wrapper">
+    <h1>Review Labeled Images</h1>
+    <p class="subtitle">Browse and review all labeled images from the annotation tool</p>
+
+    <div class="category-legend">
+      <div class="legend-item">
+        <div class="legend-color legend-goat"></div>
+        <span>Goats (Red)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color legend-trough"></div>
+        <span>Troughs (Green)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color legend-platform"></div>
+        <span>Platforms (Brown)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color legend-enrichment"></div>
+        <span>Enrichment (Purple)</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <a href="index.html" class="btn btn-secondary">← Back to Labeling</a>
+
+      <div class="view-toggle">
+        <label for="viewMode">Display Mode:</label>
+        <select id="viewMode" onchange="changeViewMode()">
+          <option value="overlay">Overlay Only</option>
+          <option value="original">Original Only</option>
+          <option value="both">Side by Side</option>
+        </select>
+      </div>
+
+      <div id="imageCount" style="font-weight: 600; color: #2d3748;">
+        Loading...
+      </div>
+    </div>
+
+    <div id="gallery" class="gallery">
+      <div class="loading">Loading labeled images...</div>
+    </div>
+
+  </div>
+
+  <footer style="margin-top: 20px; padding: 15px 0; border-top: 1px solid #e2e8f0; color: #718096; font-size: 12px; text-align: center;">
+    © 2025 Capra AI. All rights reserved.
+  </footer>
+
+  <script>
+    let reviewedImages = [];
+    let currentViewMode = 'overlay';
+
+    async function loadReviewedImages() {
+      try {
+        const response = await fetch('/api/reviewed-images');
+        reviewedImages = await response.json();
+
+        document.getElementById('imageCount').textContent =
+          `${reviewedImages.length} Labeled Image${reviewedImages.length !== 1 ? 's' : ''}`;
+
+        renderGallery();
+      } catch (error) {
+        console.error('Error loading reviewed images:', error);
+        document.getElementById('gallery').innerHTML = `
+          <div class="empty-state">
+            <h2>Error Loading Images</h2>
+            <p>There was an error loading the labeled images. Please try again.</p>
+            <a href="index.html" class="btn btn-primary">Go to Labeling Tool</a>
+          </div>
+        `;
+      }
+    }
+
+    function changeViewMode() {
+      currentViewMode = document.getElementById('viewMode').value;
+      renderGallery();
+    }
+
+    function renderGallery() {
+      const gallery = document.getElementById('gallery');
+
+      if (reviewedImages.length === 0) {
+        gallery.innerHTML = `
+          <div class="empty-state">
+            <h2>No Labeled Images Yet</h2>
+            <p>Start labeling images to see them here!</p>
+            <a href="index.html" class="btn btn-primary">Start Labeling</a>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+
+      reviewedImages.forEach(image => {
+        if (currentViewMode === 'both') {
+          // Side by side view
+          html += `
+            <div class="image-card">
+              <div class="image-container" style="height: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 2px;">
+                ${image.original ? `<img src="${image.original}" alt="Original" />` : '<div style="background: #e2e8f0; display: flex; align-items: center; justify-content: center;">Original not saved</div>'}
+                <img src="${image.overlay}" alt="Overlay" />
+              </div>
+              <div class="image-info">
+                <div class="image-name">${image.folderName}</div>
+                <div class="image-meta">Original | Labeled</div>
+              </div>
+            </div>
+          `;
+        } else if (currentViewMode === 'original' && image.original) {
+          // Original only
+          html += `
+            <div class="image-card">
+              <div class="image-container">
+                <img src="${image.original}" alt="${image.filename}" />
+              </div>
+              <div class="image-info">
+                <div class="image-name">${image.folderName}</div>
+                <div class="image-meta">Original Image</div>
+              </div>
+            </div>
+          `;
+        } else {
+          // Overlay only (default)
+          html += `
+            <div class="image-card">
+              <div class="image-container">
+                <img src="${image.overlay}" alt="${image.folderName} overlay" />
+              </div>
+              <div class="image-info">
+                <div class="image-name">${image.folderName}</div>
+                <div class="image-meta">Labeled Overlay</div>
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      gallery.innerHTML = html;
+    }
+
+    // Load images on page load
+    loadReviewedImages();
+  </script>
+</body>
+</html>

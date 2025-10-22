@@ -196,6 +196,17 @@
         <button class="btn save-btn" onclick="saveAndNext()">Save & Next</button>
         <button class="btn skip-btn" onclick="skipImage()">Skip</button>
       </div>
+      <div style="margin-top: 15px; padding: 10px; background: #f7fafc; border-radius: 8px;">
+        <label style="display: flex; align-items: center; cursor: pointer; font-size: 14px;">
+          <input type="checkbox" id="keepOriginal" style="margin-right: 8px; width: 18px; height: 18px; cursor: pointer;">
+          <span>Keep original image (copy instead of move) - Use for testing/samples</span>
+        </label>
+      </div>
+      <div style="margin-top: 15px; text-align: center;">
+        <a href="review.html" class="btn" style="background: #805ad5; display: inline-block; text-decoration: none;">
+          View Labeled Images
+        </a>
+      </div>
     </div>
 
     <div id="container"></div>
@@ -672,27 +683,39 @@
       try {
         // Save the annotations
         await saveAnnotations();
-        
-        // Move the image to review queue
+
+        // Check if we should keep the original (copy mode)
+        const keepOriginal = document.getElementById('keepOriginal').checked;
+
+        // Move or copy the image to review queue
         const response = await fetch('/api/move-to-reviewed', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            filename: imageList[currentImageIndex].filename || imageList[currentImageIndex]
+            filename: imageList[currentImageIndex].filename || imageList[currentImageIndex],
+            copyOnly: keepOriginal
           }),
         });
 
         if (response.ok) {
-          // Remove this image from the list
-          imageList.splice(currentImageIndex, 1);
-          
-          // Adjust current index if needed
-          if (currentImageIndex >= imageList.length && imageList.length > 0) {
-            currentImageIndex = imageList.length - 1;
+          // Only remove from list if we moved (not copied)
+          if (!keepOriginal) {
+            imageList.splice(currentImageIndex, 1);
+
+            // Adjust current index if needed
+            if (currentImageIndex >= imageList.length && imageList.length > 0) {
+              currentImageIndex = imageList.length - 1;
+            }
+          } else {
+            // In copy mode, just move to next image
+            currentImageIndex++;
+            if (currentImageIndex >= imageList.length) {
+              currentImageIndex = 0; // Loop back to start
+            }
           }
-          
+
           // Load next image or show completion message
           if (imageList.length > 0) {
             resetCanvas();
