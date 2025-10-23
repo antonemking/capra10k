@@ -45,20 +45,108 @@
       backdrop-filter: blur(10px);
     }
 
-    /* 3-Column Layout */
+    /* Toolbar */
+    .toolbar {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      flex-wrap: wrap;
+    }
+
+    .toolbar-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Category Dropdown */
+    .category-select {
+      padding: 8px 32px 8px 12px;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #2d3748;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      min-width: 150px;
+    }
+
+    .category-select:hover {
+      border-color: #cbd5e0;
+      background-color: #f7fafc;
+    }
+
+    .category-select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Colorblind-friendly option colors */
+    .category-select option[value="goat"] { color: #e63946; font-weight: 600; }
+    .category-select option[value="trough"] { color: #457b9d; font-weight: 600; }
+    .category-select option[value="platform"] { color: #f77f00; font-weight: 600; }
+    .category-select option[value="enrichment"] { color: #9d4edd; font-weight: 600; }
+
+    /* Toolbar Icon Buttons */
+    .toolbar-btn {
+      padding: 8px 12px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #4a5568;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .toolbar-btn:hover {
+      background: #f7fafc;
+      border-color: #cbd5e0;
+    }
+
+    .toolbar-btn:active {
+      transform: translateY(1px);
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 24px;
+      background: #e2e8f0;
+      margin: 0 4px;
+    }
+
+    .toolbar-spacer {
+      flex: 1;
+    }
+
+    /* 2-Column Layout */
     .studio-container {
       display: flex;
       flex: 1;
       overflow: hidden;
-    }
-
-    /* Left Column - Tools */
-    .tools-panel {
-      width: 220px;
-      background: white;
-      border-right: 1px solid #e2e8f0;
-      overflow-y: auto;
-      padding: 20px 16px;
     }
 
     .section {
@@ -75,101 +163,7 @@
       padding-left: 4px;
     }
 
-    /* Category Buttons - Subtle with Active State */
-    .category-btn {
-      width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      background: white;
-      border: 2px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      color: #2d3748;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      position: relative;
-    }
-
-    .category-btn::before {
-      content: '';
-      width: 3px;
-      height: 100%;
-      position: absolute;
-      left: 0;
-      top: 0;
-      border-radius: 6px 0 0 6px;
-      transition: all 0.15s ease;
-    }
-
-    .category-btn:hover {
-      border-color: #cbd5e0;
-      background: #f7fafc;
-    }
-
-    .category-btn.active {
-      background: #f7fafc;
-      border-color: currentColor;
-      font-weight: 600;
-    }
-
-    .category-btn.active::before {
-      width: 100%;
-      opacity: 0.1;
-    }
-
-    /* Colorblind-friendly colors */
-    .btn-goat { color: #e63946; } /* Red-orange */
-    .btn-goat::before { background: #e63946; }
-    .btn-goat.active { border-color: #e63946; }
-
-    .btn-trough { color: #457b9d; } /* Blue instead of green */
-    .btn-trough::before { background: #457b9d; }
-    .btn-trough.active { border-color: #457b9d; }
-
-    .btn-platform { color: #f77f00; } /* Orange - better contrast */
-    .btn-platform::before { background: #f77f00; }
-    .btn-platform.active { border-color: #f77f00; }
-
-    .btn-enrichment { color: #9d4edd; } /* Purple */
-    .btn-enrichment::before { background: #9d4edd; }
-    .btn-enrichment.active { border-color: #9d4edd; }
-
-    /* Tool Buttons */
-    .tool-btn {
-      padding: 8px 12px;
-      background: #f7fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 500;
-      color: #4a5568;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      width: 100%;
-      margin-bottom: 6px;
-    }
-
-    .tool-btn:hover {
-      background: #edf2f7;
-      border-color: #cbd5e0;
-    }
-
-    .tool-group {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-
-    .tool-group .tool-btn {
-      flex: 1;
-      margin-bottom: 0;
-    }
-
-    /* Center Column - Workspace */
+    /* Workspace - Now Full Width */
     .workspace {
       flex: 1;
       display: flex;
@@ -190,9 +184,9 @@
       overflow: hidden;
     }
 
-    /* Right Column - Actions & Info */
+    /* Right Column - Actions & Info (Narrower) */
     .actions-panel {
-      width: 260px;
+      width: 240px;
       background: white;
       border-left: 1px solid #e2e8f0;
       overflow-y: auto;
@@ -249,26 +243,29 @@
       background: #f7fafc;
     }
 
-    /* Navigation Buttons */
+    /* Navigation Buttons in Toolbar */
     .nav-btn {
-      flex: 1;
-      padding: 10px;
-      background: #4299e1;
-      border: none;
+      padding: 8px 12px;
+      background: white;
+      border: 1px solid #e2e8f0;
       border-radius: 6px;
-      color: white;
+      color: #4a5568;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
-    .nav-btn:hover {
-      background: #3182ce;
+    .nav-btn:hover:not(:disabled) {
+      background: #f7fafc;
+      border-color: #cbd5e0;
     }
 
     .nav-btn:disabled {
-      opacity: 0.5;
+      opacity: 0.4;
       cursor: not-allowed;
     }
 
@@ -348,22 +345,38 @@
     }
 
     /* Responsive */
-    @media (max-width: 1400px) {
-      .tools-panel, .actions-panel {
+    @media (max-width: 1200px) {
+      .actions-panel {
         width: 200px;
       }
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 900px) {
+      .toolbar {
+        padding: 10px 16px;
+        gap: 12px;
+      }
+
+      .toolbar-label {
+        display: none;
+      }
+
       .studio-container {
         flex-direction: column;
       }
 
-      .tools-panel, .actions-panel {
+      .actions-panel {
         width: 100%;
         border: none;
-        border-bottom: 1px solid #e2e8f0;
-        max-height: 200px;
+        border-top: 1px solid #e2e8f0;
+        max-height: 150px;
+        padding: 16px;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .actions-panel .section {
+        margin-bottom: 0;
       }
 
       .workspace {
@@ -374,6 +387,15 @@
     @media (max-width: 768px) {
       .header h1 {
         font-size: 1.2rem;
+      }
+
+      .toolbar {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .category-select {
+        min-width: 120px;
       }
 
       #container {
@@ -390,37 +412,40 @@
     <div class="image-counter" id="image-status">Loading...</div>
   </div>
 
-  <!-- 3-Column Studio Layout -->
-  <div class="studio-container">
-    <!-- Left: Tools Panel -->
-    <div class="tools-panel">
-      <div class="section">
-        <div class="section-title">Label Categories</div>
-        <button class="category-btn btn-goat active" onclick="setCategory('goat')" id="btn-goat">
-          🐐 Goat
-        </button>
-        <button class="category-btn btn-trough" onclick="setCategory('trough')" id="btn-trough">
-          🍽️ Trough
-        </button>
-        <button class="category-btn btn-platform" onclick="setCategory('platform')" id="btn-platform">
-          🪜 Platform
-        </button>
-        <button class="category-btn btn-enrichment" onclick="setCategory('enrichment')" id="btn-enrichment">
-          🎾 Enrichment
-        </button>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Canvas Tools</div>
-        <div class="tool-group">
-          <button class="tool-btn" onclick="undoLastPoint()">↶ Undo</button>
-          <button class="tool-btn" onclick="redoLastPoint()">↷ Redo</button>
-        </div>
-        <button class="tool-btn" onclick="resetCanvas()">🗑️ Reset Canvas</button>
-      </div>
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <!-- Category Selection -->
+    <div class="toolbar-section">
+      <span class="toolbar-label">Category:</span>
+      <select class="category-select" id="category-select" onchange="setCategory(this.value)">
+        <option value="goat">🐐 Goat</option>
+        <option value="trough">🍽️ Trough</option>
+        <option value="platform">🪜 Platform</option>
+        <option value="enrichment">🎾 Enrichment</option>
+      </select>
     </div>
 
-    <!-- Center: Workspace -->
+    <div class="toolbar-divider"></div>
+
+    <!-- Canvas Tools -->
+    <div class="toolbar-section">
+      <button class="toolbar-btn" onclick="undoLastPoint()" title="Undo last point">↶ Undo</button>
+      <button class="toolbar-btn" onclick="redoLastPoint()" title="Redo last point">↷ Redo</button>
+      <button class="toolbar-btn" onclick="resetCanvas()" title="Reset canvas">🗑️ Reset</button>
+    </div>
+
+    <div class="toolbar-spacer"></div>
+
+    <!-- Navigation -->
+    <div class="toolbar-section">
+      <button class="nav-btn" onclick="previousImage()" id="prev-btn" title="Previous image (←)">◀ Prev</button>
+      <button class="nav-btn" onclick="nextImage()" id="next-btn" title="Next image (→)">Next ▶</button>
+    </div>
+  </div>
+
+  <!-- 2-Column Studio Layout -->
+  <div class="studio-container">
+    <!-- Center: Workspace (Full Width) -->
     <div class="workspace">
       <div id="container"></div>
     </div>
@@ -435,14 +460,6 @@
         <button class="btn-secondary" onclick="skipImage()">
           ⏭️ Skip Image
         </button>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Navigation</div>
-        <div class="tool-group">
-          <button class="nav-btn" onclick="previousImage()" id="prev-btn">◀ Prev</button>
-          <button class="nav-btn" onclick="nextImage()" id="next-btn">Next ▶</button>
-        </div>
       </div>
 
       <div class="section">
@@ -633,9 +650,8 @@
       currentCategory = category;
       polyline.stroke(categories[category].color);
 
-      // Update button active states
-      document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(`btn-${category}`).classList.add('active');
+      // Update dropdown value
+      document.getElementById('category-select').value = category;
 
       drawLayer.draw();
     }
