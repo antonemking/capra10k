@@ -6,16 +6,15 @@
   <title>Capra10k - Goat Barn Labeler</title>
   <script src="https://unpkg.com/konva@9.0.0/konva.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #f5f7fa;
+      margin: 0;
+      padding: 0;
       color: #2d3748;
-      overflow: hidden;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
+      overflow-x: hidden;
     }
 
     /* Header */
@@ -379,6 +378,267 @@
       #container {
         width: 100% !important;
         height: auto !important;
+      padding: 20px 30px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .image-counter {
+      background: rgba(255,255,255,0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 14px;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Main Layout */
+    .main-container {
+      display: flex;
+      min-height: calc(100vh - 100px);
+      gap: 0;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: white;
+      border-right: 1px solid #e2e8f0;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    }
+
+    .control-section {
+      margin-bottom: 25px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #718096;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 3px;
+      height: 12px;
+      background: #667eea;
+      border-radius: 2px;
+    }
+
+    /* Canvas Area */
+    .canvas-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      background: #fafbfc;
+    }
+
+    #container {
+      width: 800px;
+      height: 600px;
+      border: 3px solid #e2e8f0;
+      background: white;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 12px 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      color: white;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    /* Category Buttons */
+    .btn.goat-btn {
+      background: linear-gradient(135deg, #fc5c7d 0%, #e53e3e 100%);
+    }
+
+    .btn.trough-btn {
+      background: linear-gradient(135deg, #48c774 0%, #38a169 100%);
+    }
+
+    .btn.platform-btn {
+      background: linear-gradient(135deg, #f59e0b 0%, #d69e2e 100%);
+    }
+
+    .btn.enrichment-btn {
+      background: linear-gradient(135deg, #a78bfa 0%, #805ad5 100%);
+    }
+
+    /* Tool Buttons */
+    .btn.tool-btn {
+      background: #e2e8f0;
+      color: #2d3748;
+      font-weight: 500;
+    }
+
+    .btn.tool-btn:hover {
+      background: #cbd5e0;
+    }
+
+    /* Action Buttons */
+    .btn.save-btn {
+      background: linear-gradient(135deg, #48c774 0%, #2c9653 100%);
+      font-size: 16px;
+      padding: 14px 16px;
+      box-shadow: 0 4px 14px rgba(56, 161, 105, 0.4);
+    }
+
+    .btn.skip-btn {
+      background: #ed8936;
+    }
+
+    .btn.nav-btn {
+      background: #4299e1;
+      width: 48%;
+      display: inline-flex;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    /* Quick Help */
+    .quick-help {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12px;
+      color: #4a5568;
+      line-height: 1.6;
+    }
+
+    .quick-help strong {
+      color: #2d3748;
+      display: block;
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+
+    .quick-help strong:first-child {
+      margin-top: 0;
+    }
+
+    /* Review Link */
+    .review-link {
+      display: block;
+      text-align: center;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .review-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      color: #718096;
+      font-size: 13px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .main-container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      #container {
+        max-width: 100%;
+        width: 100%;
+        height: 500px;
+      }
+
+      .canvas-area {
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        padding: 15px 20px;
+      }
+
+      .header h1 {
+        font-size: 1.4rem;
+      }
+
+      .sidebar {
+        padding: 15px;
+      }
+
+      #container {
+        height: 400px;
       }
     }
   </style>
@@ -387,90 +647,76 @@
   <!-- Header -->
   <div class="header">
     <h1>🐐 Capra10k Labeler</h1>
-    <div class="image-counter" id="image-status">Loading...</div>
+    <div class="header-right">
+      <div class="image-counter" id="image-status">Loading...</div>
+      <a href="review.html" class="review-link" style="padding: 8px 16px; border-radius: 20px; font-size: 14px;">Review Queue</a>
+    </div>
   </div>
 
-  <!-- 3-Column Studio Layout -->
-  <div class="studio-container">
-    <!-- Left: Tools Panel -->
-    <div class="tools-panel">
-      <div class="section">
+  <!-- Main Container -->
+  <div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Label Categories -->
+      <div class="control-section">
         <div class="section-title">Label Categories</div>
-        <button class="category-btn btn-goat active" onclick="setCategory('goat')" id="btn-goat">
-          🐐 Goat
-        </button>
-        <button class="category-btn btn-trough" onclick="setCategory('trough')" id="btn-trough">
-          🍽️ Trough
-        </button>
-        <button class="category-btn btn-platform" onclick="setCategory('platform')" id="btn-platform">
-          🪜 Platform
-        </button>
-        <button class="category-btn btn-enrichment" onclick="setCategory('enrichment')" id="btn-enrichment">
-          🎾 Enrichment
-        </button>
+        <button class="btn goat-btn" onclick="setCategory('goat')">🐐 Goat</button>
+        <button class="btn trough-btn" onclick="setCategory('trough')">🍽️ Trough</button>
+        <button class="btn platform-btn" onclick="setCategory('platform')">🪜 Platform</button>
+        <button class="btn enrichment-btn" onclick="setCategory('enrichment')">🎾 Enrichment</button>
       </div>
 
-      <div class="section">
+      <!-- Canvas Tools -->
+      <div class="control-section">
         <div class="section-title">Canvas Tools</div>
-        <div class="tool-group">
-          <button class="tool-btn" onclick="undoLastPoint()">↶ Undo</button>
-          <button class="tool-btn" onclick="redoLastPoint()">↷ Redo</button>
+        <div class="btn-group">
+          <button class="btn tool-btn" onclick="undoLastPoint()" style="width: 50%;">↶ Undo</button>
+          <button class="btn tool-btn" onclick="redoLastPoint()" style="width: 50%;">↷ Redo</button>
         </div>
-        <button class="tool-btn" onclick="resetCanvas()">🗑️ Reset Canvas</button>
+        <button class="btn tool-btn" onclick="resetCanvas()">🗑️ Reset Canvas</button>
+      </div>
+
+      <!-- Navigation -->
+      <div class="control-section">
+        <div class="section-title">Navigation</div>
+        <div class="btn-group">
+          <button class="btn nav-btn" onclick="previousImage()">◀ Prev</button>
+          <button class="btn nav-btn" onclick="nextImage()">Next ▶</button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="control-section">
+        <div class="section-title">Actions</div>
+        <button class="btn save-btn" onclick="saveAndNext()">✓ Save & Next</button>
+        <button class="btn skip-btn" onclick="skipImage()">⏭️ Skip Image</button>
+      </div>
+
+      <!-- Quick Help -->
+      <div class="control-section">
+        <div class="quick-help">
+          <strong>How to Label:</strong>
+          Click to place points, close shape by clicking near start.
+          <strong>Shortcuts:</strong>
+          • 1-4: Select category<br>
+          • Ctrl+S: Save & next<br>
+          • Space: Skip<br>
+          • ← →: Navigate<br>
+          • Esc: Reset
+        </div>
       </div>
     </div>
 
-    <!-- Center: Workspace -->
-    <div class="workspace">
+    <!-- Canvas Area -->
+    <div class="canvas-area">
       <div id="container"></div>
     </div>
-
-    <!-- Right: Actions & Info Panel -->
-    <div class="actions-panel">
-      <div class="section">
-        <div class="section-title">Primary Actions</div>
-        <button class="btn-primary" onclick="saveAndNext()">
-          ✓ Save & Next
-        </button>
-        <button class="btn-secondary" onclick="skipImage()">
-          ⏭️ Skip Image
-        </button>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Navigation</div>
-        <div class="tool-group">
-          <button class="nav-btn" onclick="previousImage()" id="prev-btn">◀ Prev</button>
-          <button class="nav-btn" onclick="nextImage()" id="next-btn">Next ▶</button>
-        </div>
-      </div>
-
-      <div class="section">
-        <a href="review.html" class="review-link">📋 Review Queue</a>
-      </div>
-
-      <div class="section" style="margin-top: auto;">
-        <button class="help-toggle" onclick="toggleHelp()">
-          <span>❓ Help & Shortcuts</span>
-          <span id="help-arrow">▼</span>
-        </button>
-        <div class="help-content" id="help-content">
-          <div class="info-panel">
-            <strong>How to Label</strong>
-            Click to place points. Close shape by clicking near the start point. Scroll to zoom, drag points to adjust.
-
-            <strong style="margin-top: 12px;">Keyboard Shortcuts</strong>
-            • <strong>1-4</strong>: Select category<br>
-            • <strong>Ctrl+S</strong>: Save & next<br>
-            • <strong>Space</strong>: Skip image<br>
-            • <strong>← →</strong>: Navigate<br>
-            • <strong>Esc</strong>: Reset canvas<br>
-            • <strong>Right-click</strong>: Delete point
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
+
+  <!-- Footer -->
+  <footer>
+    © 2025 Capra AI. All rights reserved.
+  </footer>
 
   <script>
     const width = 800;
