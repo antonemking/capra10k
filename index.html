@@ -36,6 +36,12 @@
       letter-spacing: -0.5px;
     }
 
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
     .image-counter {
       background: rgba(255,255,255,0.2);
       padding: 6px 14px;
@@ -43,6 +49,23 @@
       font-weight: 600;
       font-size: 13px;
       backdrop-filter: blur(10px);
+    }
+
+    .review-link-header {
+      background: rgba(255,255,255,0.25);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .review-link-header:hover {
+      background: rgba(255,255,255,0.35);
+      transform: translateY(-1px);
     }
 
     /* Toolbar */
@@ -409,7 +432,10 @@
   <!-- Header -->
   <div class="header">
     <h1>🐐 Capra10k Labeler</h1>
-    <div class="image-counter" id="image-status">Loading...</div>
+    <div class="header-right">
+      <div class="image-counter" id="image-status">Loading...</div>
+      <a href="review.html" class="review-link-header">📋 Review Queue</a>
+    </div>
   </div>
 
   <!-- Toolbar -->
@@ -460,10 +486,6 @@
         <button class="btn-secondary" onclick="skipImage()">
           ⏭️ Skip Image
         </button>
-      </div>
-
-      <div class="section">
-        <a href="review.html" class="review-link">📋 Review Queue</a>
       </div>
 
       <div class="section" style="margin-top: auto;">
